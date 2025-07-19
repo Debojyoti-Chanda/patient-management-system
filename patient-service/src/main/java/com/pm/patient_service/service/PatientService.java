@@ -48,7 +48,7 @@ public class PatientService {
 //        System.out.println(patient);
         Patient patient = patientRepository.findById(id).orElseThrow(() -> new PatientNotFoundException("Patient is not found with ID : " + id));
 
-        if(patientRepository.existsByEmail(patientRequestDTO.getEmail())){
+        if(patientRepository.existsByEmailAndIdNot(patientRequestDTO.getEmail(), id)){
             throw new EmailAlreadyExistsException("A patient with this email aready exists" + patientRequestDTO.getEmail());
         }
         //business functionality , mandatory to update all the fields in this method
