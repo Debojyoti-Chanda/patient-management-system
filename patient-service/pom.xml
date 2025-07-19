@@ -67,6 +67,7 @@
 			<version>2.3.232</version>
 		</dependency>
 
+
 <!--For the integration between spring-boot and swagger-ui, add the library to the list of your project dependencies-->
 		<dependency>
 			<groupId>org.springdoc</groupId>

@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:latest
+    container_name: patient-service-db
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks: # Add the networks section for postgres
+      - internal
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin-patient-mangement
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+    ports:
+      - "5050:80"
+    networks: # Add the networks section for pgadmin to connect to the same network
+      - internal
+
+  patient-service:
+    image: patient-service-image:latest
+    container_name: patient-service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://${DB_HOST}:5432/${DB_NAME}
+      SPRING_DATASOURCE_USERNAME:  ${DB_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_SQL_INIT_MODE: always
+
+    ports:
+      - "4000:4000"
+    networks: # Add the networks section for patient-service to connect to the same network
+      - internal
+
+
+volumes:
+  pgdata:
+
+networks: # Define the custom network
+  internal:
+    driver: bridge # Specify the network driver (bridge is common for user-defined networks)
