@@ -14,6 +14,13 @@ services:
       - pgdata:/var/lib/postgresql/data
     networks: # Add the networks section for postgres
       - internal
+    healthcheck: # <--- ADD THIS SECTION
+      test: [ "CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB_NAME}" ] # Check DB connection
+      interval: 5s # Check every 5 seconds
+      timeout: 5s  # Timeout after 5 seconds
+      retries: 5   # Retry 5 times
+      start_period: 10s # Give it 10 seconds to start before first health check
+
   pgadmin:
     image: dpage/pgadmin4
     container_name: pgadmin-patient-mangement
@@ -24,6 +31,9 @@ services:
       - "5050:80"
     networks: # Add the networks section for pgadmin to connect to the same network
       - internal
+    depends_on: # It's good practice for pgadmin to wait for postgres too
+      postgres:
+        condition: service_healthy
 
   patient-service:
     image: patient-service-image:latest
@@ -34,10 +44,25 @@ services:
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
       SPRING_SQL_INIT_MODE: always
-
     ports:
       - "4000:4000"
     networks: # Add the networks section for patient-service to connect to the same network
+      - internal
+    depends_on: # <--- MODIFY THIS SECTION
+      postgres:
+        condition: service_healthy # Wait until postgres reports healthy
+
+
+  billing-service:
+    build:
+      context: ./billing-service
+      dockerfile: Dockerfile
+    image: billing-service-image:latest
+    container_name: billing-service
+    ports:
+      - "4001:4001"
+      - "9001:9001"
+    networks: # Add the networks section for billing-service to connect to the same network
       - internal
 
 

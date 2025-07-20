@@ -22,7 +22,6 @@ public class BillingGrpcService extends BillingServiceGrpc.BillingServiceImplBas
         // StreamObserver<billing.BillingResponse> responseObserver: This is the mechanism to send the response(s) back to
         // the client. For a unary RPC (like this one), you'll call onNext() once with the response and then onCompleted()
         // to signal the end of the call. For streaming RPCs, you'd call onNext() multiple times.
-
         BillingResponse billingResponse = BillingResponse.newBuilder().setAccountId("12345").setStatus("ACTIVE").build();
         // This line constructs a BillingResponse object. BillingResponse is a generated Protobuf message class.
         //Protobuf generated classes use a builder pattern (newBuilder(), setX(), build()) for creating immutable message
