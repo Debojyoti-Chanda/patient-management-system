@@ -19,3 +19,6 @@ message BillingResponse {
   string accountId = 1;
   string status = 2;
 }
+
+// ./mvnw compile , to get the protobuf java classes like BillingRequest.java(like Request DTO), BillingResponse(like
+//Response DTO) etc
