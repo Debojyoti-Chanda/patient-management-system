@@ -21,19 +21,19 @@ services:
       retries: 5   # Retry 5 times
       start_period: 10s # Give it 10 seconds to start before first health check
 
-  pgadmin:
-    image: dpage/pgadmin4
-    container_name: pgadmin-patient-mangement
-    environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
-    ports:
-      - "5050:80"
-    networks: # Add the networks section for pgadmin to connect to the same network
-      - internal
-    depends_on: # It's good practice for pgadmin to wait for postgres too
-      postgres:
-        condition: service_healthy
+#  pgadmin:
+#    image: dpage/pgadmin4
+#    container_name: pgadmin-patient-mangement
+#    environment:
+#      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
+#      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+#    ports:
+#      - "5050:80"
+#    networks: # Add the networks section for pgadmin to connect to the same network
+#      - internal
+#    depends_on: # It's good practice for pgadmin to wait for postgres too
+#      postgres:
+#        condition: service_healthy
 
   patient-service:
     image: patient-service-image:1.1
@@ -95,6 +95,21 @@ services:
       retries: 5
       start_period: 30s # Give Kafka time to fully initialize KRaft
 
+  analytics-service:
+    build:
+      context: ./analytics-service
+      dockerfile: Dockerfile
+    image: analytics-service-image:0.0
+    container_name: analytics-service
+    ports:
+      - "4002:4002"
+    environment:
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+    networks:
+      - internal
+    depends_on: # <--- MODIFY THIS SECTION
+      kafka:
+        condition: service_healthy
 
 volumes:
   pgdata:
