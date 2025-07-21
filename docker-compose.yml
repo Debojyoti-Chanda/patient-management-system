@@ -36,7 +36,7 @@ services:
         condition: service_healthy
 
   patient-service:
-    image: patient-service-image:latest
+    image: patient-service-image:1.0
     container_name: patient-service
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://${DB_HOST}:5432/${DB_NAME}
@@ -44,6 +44,8 @@ services:
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
       SPRING_SQL_INIT_MODE: always
+      BILLING_SERVICE_ADDRESS: billing-service
+      BILLING_SERVICE_GRPC_PORT: 9001
     ports:
       - "4000:4000"
     networks: # Add the networks section for patient-service to connect to the same network
@@ -51,6 +53,8 @@ services:
     depends_on: # <--- MODIFY THIS SECTION
       postgres:
         condition: service_healthy # Wait until postgres reports healthy
+      billing-service:
+        condition: service_started
 
 
   billing-service:

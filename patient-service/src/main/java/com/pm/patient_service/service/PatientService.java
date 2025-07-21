@@ -5,6 +5,7 @@ import com.pm.patient_service.dto.PatientRequestDTO;
 import com.pm.patient_service.dto.PatientResponseDTO;
 import com.pm.patient_service.exceptions.EmailAlreadyExistsException;
 import com.pm.patient_service.exceptions.PatientNotFoundException;
+import com.pm.patient_service.grpc.BillingServiceGrpcClient;
 import com.pm.patient_service.mapper.PatientMapper;
 import com.pm.patient_service.model.Patient;
 import com.pm.patient_service.repository.PatientRepository;
@@ -17,10 +18,12 @@ import java.util.UUID;
 @Service
 public class PatientService {
     private PatientRepository patientRepository;
+    private final BillingServiceGrpcClient billingServiceGrpcClient;
 
     //When only 1 constructor is created @Autowired is automatically for the constructor
-    public PatientService(PatientRepository patientRepository){
+    public PatientService(PatientRepository patientRepository, BillingServiceGrpcClient billingServiceGrpcClient){
         this.patientRepository = patientRepository;
+        this.billingServiceGrpcClient = billingServiceGrpcClient;
     }
 
     public List<PatientResponseDTO> getPatients(){
@@ -35,9 +38,8 @@ public class PatientService {
         if(patientRepository.existsByEmail(patientRequestDTO.getEmail())){
             throw new EmailAlreadyExistsException("A patient with this email aready exists" + patientRequestDTO.getEmail());
         }
-
-
         Patient newPatient = patientRepository.save(PatientMapper.toModel(patientRequestDTO));
+        billingServiceGrpcClient.createBillingAccount(newPatient.getId().toString(),newPatient.getName(),newPatient.getEmail());
 
         return  PatientMapper.toDTO(newPatient);
 
