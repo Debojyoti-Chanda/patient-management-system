@@ -55,6 +55,7 @@ services:
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
       SPRING_SQL_INIT_MODE: always
+      JWT_SECRET: ${SECRET} #Base-64 encoded string
     networks: # Add the networks section for postgres
       - internal
     depends_on:
