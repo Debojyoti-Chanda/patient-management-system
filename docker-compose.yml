@@ -47,8 +47,6 @@ services:
       BILLING_SERVICE_ADDRESS: billing-service
       BILLING_SERVICE_GRPC_PORT: 9001
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-    ports:
-      - "4000:4000"
     networks: # Add the networks section for patient-service to connect to the same network
       - internal
     depends_on: # <--- MODIFY THIS SECTION
@@ -110,6 +108,19 @@ services:
     depends_on: # <--- MODIFY THIS SECTION
       kafka:
         condition: service_healthy
+
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    image: api-gateway-image:0.0
+    container_name: api-gateway
+    ports:
+      - "4004:4004"
+    networks:
+      - internal
+    depends_on:
+      - patient-service
 
 volumes:
   pgdata:
