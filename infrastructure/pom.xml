@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>com.pm</groupId>
+	<artifactId>infrastructure</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+
+	<name>infrastructure</name>
+	<description>IaC in java</description>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<java.version>24</java.version>
+	</properties>
+
+	<dependencies>
+		<!-- https://mvnrepository.com/artifact/software.amazon.awscdk/aws-cdk-lib -->
+		<!--While CDK is used for defining and deploying infrastructure,-->
+		<dependency>
+			<groupId>software.amazon.awscdk</groupId>
+			<artifactId>aws-cdk-lib</artifactId>
+			<version>2.208.0</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk -->
+		<!--the SDK is used for programmatically interacting with the services that are already running.-->
+		<dependency>
+			<groupId>com.amazonaws</groupId>
+			<artifactId>aws-java-sdk</artifactId>
+			<version>1.12.788</version>
+		</dependency>
+
+	</dependencies>
+
+</project>
