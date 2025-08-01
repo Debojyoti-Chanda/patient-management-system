@@ -6,14 +6,12 @@ import software.amazon.awscdk.services.ec2.InstanceSize;
 import software.amazon.awscdk.services.ec2.InstanceType;
 import software.amazon.awscdk.services.ec2.Vpc;
 import software.amazon.awscdk.services.rds.*;
+import software.amazon.awscdk.services.route53.CfnHealthCheck;
 
 //  A Stack represents a single unit of deployment in AWS CloudFormation. Everything you define within this class will
 //  become part of a single CloudFormation stack.
 public class LocalStack extends Stack   {
     private final Vpc vpc;
-
-    DatabaseInstance authServiceDb = createDatebase("AuthServiceDB","auth-service-db");
-    DatabaseInstance patientServiceDb = createDatebase("PatientServiceDB","patient-service-db");
 
     // final App scope: This is the parent "scope" for the stack. An App is the top-level container for one or more stacks.
     // final String id: This is a unique identifier for the stack within its scope. AWS CDK uses this ID to generate a
@@ -23,6 +21,11 @@ public class LocalStack extends Stack   {
     public LocalStack(final App scope, final String id, final StackProps props){
         super(scope,id,props);
         this.vpc = createVpc();
+        DatabaseInstance authServiceDb = createDatebase("AuthServiceDB","auth-service-db");
+        DatabaseInstance patientServiceDb = createDatebase("PatientServiceDB","patient-service-db");
+
+        CfnHealthCheck authDbHealthCheck = createDbHealthCheck(authServiceDb,"AuthServiceDBHealthCheck");
+        CfnHealthCheck patientDbHealthCheck = createDbHealthCheck(patientServiceDb,"PatientDBHealthCheck");
     }
     private Vpc createVpc(){
         return Vpc.Builder
@@ -46,6 +49,18 @@ public class LocalStack extends Stack   {
                 .credentials(Credentials.fromGeneratedSecret("admin_user"))
                 .databaseName(dbName) 
                 .removalPolicy(RemovalPolicy.DESTROY )
+                .build();
+    }
+
+    private CfnHealthCheck createDbHealthCheck(DatabaseInstance db,String id){
+        return CfnHealthCheck.Builder.create(this,id)
+                .healthCheckConfig(CfnHealthCheck.HealthCheckConfigProperty.builder()
+                        .type("TCP")
+                        .port(Token.asNumber(db.getDbInstanceEndpointPort()))
+                        .ipAddress(db.getDbInstanceEndpointAddress())
+                        .requestInterval(30)
+                        .failureThreshold(3)
+                        .build())
                 .build();
     }
 
