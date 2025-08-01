@@ -1,10 +1,13 @@
 package com.pm.stack;
 
 import software.amazon.awscdk.*;
+import software.amazon.awscdk.services.ec2.Vpc;
 
 //  A Stack represents a single unit of deployment in AWS CloudFormation. Everything you define within this class will
 //  become part of a single CloudFormation stack.
 public class LocalStack extends Stack   {
+    private final Vpc vpc;
+
     // final App scope: This is the parent "scope" for the stack. An App is the top-level container for one or more stacks.
     // final String id: This is a unique identifier for the stack within its scope. AWS CDK uses this ID to generate a
     // logical ID for the CloudFormation stack.
@@ -12,6 +15,14 @@ public class LocalStack extends Stack   {
     // account, or other stack-specific settings.
     public LocalStack(final App scope, final String id, final StackProps props){
         super(scope,id,props);
+        this.vpc = createVpc();
+    }
+    private Vpc createVpc(){
+        return Vpc.Builder
+                .create(this,"PatientManagementVPC")
+                .vpcName("PatientManagementVPC")
+                .maxAzs(2)
+                .build();
     }
 
     public static void main(String[] args) {
