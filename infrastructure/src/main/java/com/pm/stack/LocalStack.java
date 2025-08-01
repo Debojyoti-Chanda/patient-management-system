@@ -1,12 +1,19 @@
 package com.pm.stack;
 
 import software.amazon.awscdk.*;
+import software.amazon.awscdk.services.ec2.InstanceClass;
+import software.amazon.awscdk.services.ec2.InstanceSize;
+import software.amazon.awscdk.services.ec2.InstanceType;
 import software.amazon.awscdk.services.ec2.Vpc;
+import software.amazon.awscdk.services.rds.*;
 
 //  A Stack represents a single unit of deployment in AWS CloudFormation. Everything you define within this class will
 //  become part of a single CloudFormation stack.
 public class LocalStack extends Stack   {
     private final Vpc vpc;
+
+    DatabaseInstance authServiceDb = createDatebase("AuthServiceDB","auth-service-db");
+    DatabaseInstance patientServiceDb = createDatebase("PatientServiceDB","patient-service-db");
 
     // final App scope: This is the parent "scope" for the stack. An App is the top-level container for one or more stacks.
     // final String id: This is a unique identifier for the stack within its scope. AWS CDK uses this ID to generate a
@@ -22,6 +29,23 @@ public class LocalStack extends Stack   {
                 .create(this,"PatientManagementVPC")
                 .vpcName("PatientManagementVPC")
                 .maxAzs(2)
+                .build();
+    }
+
+    private DatabaseInstance createDatebase(String id, String dbName){
+        return DatabaseInstance.Builder
+                .create(this,id)
+                .engine(DatabaseInstanceEngine
+                        .postgres(PostgresInstanceEngineProps
+                                .builder()
+                                .version(PostgresEngineVersion.VER_17_5)
+                                .build())
+                ).vpc(vpc)
+                .instanceType(InstanceType.of(InstanceClass.BURSTABLE2, InstanceSize.MICRO))
+                .allocatedStorage(20)
+                .credentials(Credentials.fromGeneratedSecret("admin_user"))
+                .databaseName(dbName) 
+                .removalPolicy(RemovalPolicy.DESTROY )
                 .build();
     }
 
