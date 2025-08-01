@@ -1,8 +1,11 @@
 package com.pm.stack;
 
+
 import software.amazon.awscdk.*;
 import software.amazon.awscdk.services.ec2.*;
 import software.amazon.awscdk.services.ec2.InstanceType;
+import software.amazon.awscdk.services.ecs.CloudMapNamespaceOptions;
+import software.amazon.awscdk.services.ecs.Cluster;
 import software.amazon.awscdk.services.msk.CfnCluster;
 import software.amazon.awscdk.services.rds.*;
 import software.amazon.awscdk.services.route53.CfnHealthCheck;
@@ -13,6 +16,7 @@ import java.util.stream.Collectors;
 //  become part of a single CloudFormation stack.
 public class LocalStack extends Stack   {
     private final Vpc vpc;
+    private final Cluster ecsCluster;
 
     // final App scope: This is the parent "scope" for the stack. An App is the top-level container for one or more stacks.
     // final String id: This is a unique identifier for the stack within its scope. AWS CDK uses this ID to generate a
@@ -29,6 +33,8 @@ public class LocalStack extends Stack   {
         CfnHealthCheck patientDbHealthCheck = createDbHealthCheck(patientServiceDb,"PatientDBHealthCheck");
 
         CfnCluster mskCluster = createMskCluster();
+
+        this.ecsCluster = createEcsCluster();
     }
     private Vpc createVpc(){
         return Vpc.Builder
@@ -82,6 +88,15 @@ public class LocalStack extends Stack   {
                         .brokerAzDistribution("DEFAULT")
                         .build()
                 ).build() ;
+    }
+
+    private Cluster createEcsCluster(){
+        return Cluster.Builder.create(this,"PatientManagementCluster")
+                .vpc(vpc)
+                .defaultCloudMapNamespace(CloudMapNamespaceOptions.builder()
+                        .name("patient-management.local")
+                        .build()
+                ).build();
     }
 
     public static void main(String[] args) {
